@@ -6,6 +6,27 @@
 #include <mpi.h>
 #include <stdlib.h>
 
+
+void merge(int* arr1, int len1, int* arr2, int len2, int* merged) {
+    int idx1 = 0;
+    int idx2 = 0;
+    for (int i = 0; i < len1 + len2; ++i) {
+        merged[i] = (arr1[idx1] < arr2[idx2] ? arr1[idx1++] : arr2[idx2++]);
+    }
+}
+int getLocalArrayLen(int rank, int N, int P) {
+    return ((int) N/P) + (rank < N % P ? 1 : 0);
+}
+
+
+int int_cmp(const void *a, const void *b) 
+{ 
+    const int *ia = (const int *)a; 
+    const int *ib = (const int *)b;
+
+    return *ia  - *ib; 
+}
+
 int main(int argc, char **argv)
 {
     int rank, size, tag, rc, i;
@@ -54,31 +75,32 @@ int main(int argc, char **argv)
     int evenprocess = rank % 2 == 0;
     int evenphase = 1;
     int myArrayLen = getLocalArrayLen(rank, N, size);
-    int A[myArrayLen];
+    int *A;
     for (int i = 0; i < myArrayLen; ++i) {
         A[i] = rand(); 
     }
+    qsort(A, myArrayLen, sizeof(int),int_cmp);
 
     for (int i = 0; i < N; ++i) {
         if ((evenphase && evenprocess) || (!evenphase && !evenprocess)) {
             if (rank < N-1) {
                 int recvLen = getLocalArrayLen(rank+1, N, size);
-                int X[recvLen];
-                rc = MPI_Send(A, myArrayLen, MPI_INTEGER, rank+1, tag, MPI_COMM_WORLD);
-                rc = MPI_Receive(X, recvLen, MPI_INTEGER, rank+1, tag, MPI_COMM_WORLD, &status);
+                int *X;
+                rc = MPI_Send(&A, myArrayLen, MPI_INTEGER, rank+1, tag, MPI_COMM_WORLD);
+                rc = MPI_Recv(&X, recvLen, MPI_INTEGER, rank+1, tag, MPI_COMM_WORLD, &status);
 
-                int merged[myArrayLen+recvLen];
+                int *merged;
                 merge(A, myArrayLen, X, recvLen, merged);
                 A = merged;
             }
         } else {
             if (rank > 0) {
                 int recvLen = getLocalArrayLen(rank-1, N, size);
-                int X[recvLen];
-                rc = MPI_Receive(X, recvLen, MPI_INTEGER, rank-1, tag, MPI_COMM_WORLD, &status); 
-                rc = MPI_Send(A, myArrayLen, MPI_INTEGER, rank-1, tag, MPI_COMM_WORLD);
+                int *X;
+                rc = MPI_Recv(&X, recvLen, MPI_INTEGER, rank-1, tag, MPI_COMM_WORLD, &status); 
+                rc = MPI_Send(&A, myArrayLen, MPI_INTEGER, rank-1, tag, MPI_COMM_WORLD);
                 
-                int merged[myArrayLen+recvLen];
+                int *merged;
                 merge(A, myArrayLen, X, recvLen, merged);
                 A = &merged[recvLen];
             }
@@ -93,15 +115,4 @@ int main(int argc, char **argv)
     rc = MPI_Finalize();
 }
 
-void merge(int* arr1, int len1, int* arr2, int len2, int* merged) {
-    int idx1 = 0;
-    int idx2 = 0;
-    int merged[len1+len2];
-    for (int i = 0; i < len1 + len2; ++i) {
-        merged[i] = (arr1[idx1] < arr2[idx2] ? arr1[idx1++] : arr2[idx2++]);
-    }
-    return merged;
-}
-int getLocalArrayLen(int rank, int N, int P) {
-    return int(N/size) + (rank < N % P ? 1 : 0);
-}
+
