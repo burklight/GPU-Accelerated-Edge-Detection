@@ -10,8 +10,20 @@
 void merge(double* arr1, int len1, double* arr2, int len2, double* merged) {
     int idx1 = 0;
     int idx2 = 0;
-    for (int i = 0; i < len1 + len2; ++i) {
-        merged[i] = (arr1[idx1] < arr2[idx2] ? arr1[idx1++] : arr2[idx2++]);
+    for (int i = 0; i < len1 + len2; i++) {
+      if (arr1[idx1] < arr2[idx2] && idx1 < len1){
+        merged[i] = arr1[idx1];
+        idx1++;
+      } else if (idx2 < len2){
+        merged[i] = arr2[idx2];
+        idx2++;
+      } else if (idx1 == len1){
+        merged[i] = arr2[idx2];
+        idx2++;
+      } else {
+        merged[i] = arr1[idx1];
+        idx1++;
+      }
     }
 }
 
@@ -79,6 +91,20 @@ int main(int argc, char **argv)
 
                 double merged[recvLen + myArrayLen];
                 merge(A, myArrayLen, X, recvLen, merged);
+                if (i == 0 && rank == 1){
+                  for (unsigned int j = 0; j < myArrayLen; j++){
+                    printf("%.5f ", A[j]);
+                  }
+                  printf("\n");
+                  for (unsigned int j = 0; j < recvLen; j++){
+                    printf("%.5f ", X[j]);
+                  }
+                  printf("\n");
+                  for (unsigned int j = 0; j < recvLen+myArrayLen; j++){
+                    printf("%.5f ", merged[j]);
+                  }
+                  printf("\n");
+                }
                 for (unsigned int j = 0; j < myArrayLen; j++){
                   A[j] = merged[j+recvLen];
                 }
