@@ -5,6 +5,7 @@
 #include "gpuNaive.hpp"
 #include "gpuShared.hpp"
 #include "gpuConst.hpp"
+#include "gpuSeparable.hpp"
 
 /****************************Function definition*******************************/
 __global__ void CUDA_thresholding(short *image, int Nx);
@@ -67,6 +68,11 @@ static void GPU_edgeDetection(std::vector<short> image, std::vector<short> &resu
       case CONSTANT:
         GPU_convolution_const(image, filtered, Nx, Ny, gaussian);
         GPU_convolution_const(filtered, result, Nx, Ny, laplacian);
+        break;
+      case SEPARABLE:
+        GPU_convolution_sep(image, filtered, Nx, Ny); // This is only for gaussian
+        GPU_convolution_const(filtered, result, Nx, Ny, laplacian);
+        break;
     }
     GPU_thresholding(result, Nx, Ny);
 }

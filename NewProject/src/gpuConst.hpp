@@ -13,10 +13,6 @@ __global__ void CUDA_convolution_const_laplacian(short *image, short *result,
 static void GPU_convolution_const(std::vector<short> image, std::vector<short> &result,
   int Nx, int Ny, int filterChoice);
 
-/****************************Constant kernels in GPU***************************/
-__constant__ float gaussianKernel[kerSizeGauss*kerSizeGauss];
-__constant__ float laplacianKernel[kerSizeLaplacian*kerSizeLaplacian];
-
 
 /****************************Function implementation***************************/
 __global__ void CUDA_convolution_const_gaussian(short *image, short *result,
@@ -64,7 +60,7 @@ __global__ void CUDA_convolution_const_gaussian(short *image, short *result,
 
     //load bottom apron
     if (thy+kerRad >= blockDim.y){
-      if (i+kerRad >= Ny) data[idx][idy+kerRad] = 0;
+      if (j+kerRad >= Ny) data[idx][idy+kerRad] = 0;
       else data[idx][idy+kerRad] = image[i+Nx*(j+kerRad)];
     }
 
@@ -156,7 +152,7 @@ __global__ void CUDA_convolution_const_laplacian(short *image, short *result,
 
     //load bottom apron
     if (thy+kerRad >= blockDim.y){
-      if (i+kerRad >= Ny) data[idx][idy+kerRad] = 0;
+      if (j+kerRad >= Ny) data[idx][idy+kerRad] = 0;
       else data[idx][idy+kerRad] = image[i+Nx*(j+kerRad)];
     }
 

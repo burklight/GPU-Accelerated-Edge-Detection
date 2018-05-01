@@ -75,6 +75,15 @@ int main(){
 
     begin = clock();
     for (int i = 0; i < manyTimes; i++){
+      GPU_convolution_sep(image, result, Nx[s], Ny[s]);
+    }
+    end = clock();
+    elapsed = double(end - begin) / CLOCKS_PER_SEC;
+    std::cout << "GPU Separable: \t 5x5 convolution on " << manyTimes << " " << Nx[s] << "x" << Ny[s]
+      <<  " images: " << elapsed << std::endl;
+
+    begin = clock();
+    for (int i = 0; i < manyTimes; i++){
       CPU_convolution(image, result, Nx[s], Ny[s], laplacian);
     }
     end = clock();

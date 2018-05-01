@@ -13,9 +13,10 @@
 
 #define NAIVE 1
 #define SHARED 2
-#define CONSTANT 3 
+#define CONSTANT 3
+#define SEPARABLE 4
 
-
+/*
 const std::vector<float> gaussFilt =
 {
   2 / 159.0,  4 / 159.0,  5 / 159.0,  4 / 159.0,  2 / 159.0,
@@ -23,6 +24,20 @@ const std::vector<float> gaussFilt =
   5 / 159.0, 12 / 159.0, 15 / 159.0, 12 / 159.0,  5 / 159.0,
   4 / 159.0,  9 / 159.0, 12 / 159.0,  9 / 159.0,  4 / 159.0,
   2 / 159.0,  4 / 159.0,  5 / 159.0,  4 / 159.0,  2 / 159.0
+};*/
+
+const std::vector<float> gaussFilt =
+{
+   4 / 289.0,  8 / 289.0, 10 / 289.0,  8 / 289.0,  4 / 289.0,
+   8 / 289.0, 16 / 289.0, 20 / 289.0, 16 / 289.0,  8 / 289.0,
+  10 / 289.0, 20 / 289.0, 25 / 289.0, 20 / 289.0, 10 / 289.0,
+   8 / 289.0, 16 / 289.0, 20 / 289.0, 16 / 289.0,  8 / 289.0,
+   4 / 289.0,  8 / 289.0, 10 / 289.0,  8 / 289.0,  4 / 289.0
+};
+
+const std::vector<float> gaussFiltLin =
+{
+  2 / 17.0,  4 / 17.0, 5 / 17.0,  4 / 17.0,  2 / 17.0,
 };
 
 const std::vector<float> LaplacianFilt =
@@ -31,6 +46,11 @@ const std::vector<float> LaplacianFilt =
   1, -4,  1,
   0,  1,  0
 };
+
+/****************************Constant kernels in GPU***************************/
+__constant__ float gaussianKernel[kerSizeGauss*kerSizeGauss];
+__constant__ float laplacianKernel[kerSizeLaplacian*kerSizeLaplacian];
+__constant__ float gaussianKernelLin[kerSizeGauss];
 
 
 #endif
