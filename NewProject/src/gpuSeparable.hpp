@@ -147,7 +147,7 @@ static void GPU_convolution_sep(std::vector<short> image, std::vector<short> &re
   cudaMemcpy(&result[0], d_res, sizeRes, cudaMemcpyDeviceToHost);
 
   // Cleanup
-  cudaFree(d_img); cudaFree(d_res);
+  cudaFree(d_img); cudaFree(d_res); 
 
 }
 

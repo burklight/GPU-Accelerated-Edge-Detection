@@ -6,6 +6,7 @@
 #include "gpuShared.hpp"
 #include "gpuConst.hpp"
 #include "gpuSeparable.hpp"
+#include "gpuTiling.hpp"
 
 /****************************Function definition*******************************/
 __global__ void CUDA_thresholding(short *image, int Nx);
@@ -73,6 +74,9 @@ static void GPU_edgeDetection(std::vector<short> image, std::vector<short> &resu
         GPU_convolution_sep(image, filtered, Nx, Ny); // This is only for gaussian
         GPU_convolution_const(filtered, result, Nx, Ny, laplacian);
         break;
+      case TILING:
+        GPU_convolution_tiling(image, filtered, Nx, Ny, gaussian);
+        GPU_convolution_tiling(filtered, result, Nx, Ny, laplacian);
     }
     GPU_thresholding(result, Nx, Ny);
 }

@@ -13,7 +13,6 @@ __global__ void CUDA_convolution_const_laplacian(short *image, short *result,
 static void GPU_convolution_const(std::vector<short> image, std::vector<short> &result,
   int Nx, int Ny, int filterChoice);
 
-
 /****************************Function implementation***************************/
 __global__ void CUDA_convolution_const_gaussian(short *image, short *result,
   int Nx, int Ny) {

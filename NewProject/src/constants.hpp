@@ -10,11 +10,16 @@
 #define kerSizeLaplacian 3
 #define kerRadLaplacian 1
 #define threshold 5
+#define tilingFactor 10
+#define keplerSharedMemSize 49152
+#define maxwellSharedMemSize 65536
+#define pascalSharedMemSize 98304
 
 #define NAIVE 1
 #define SHARED 2
 #define CONSTANT 3
 #define SEPARABLE 4
+#define TILING 5
 
 /*
 const std::vector<float> gaussFilt =
