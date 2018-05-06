@@ -47,6 +47,7 @@ int main(){
     std::cout << "CPU:       \t 5x5 convolution on " << manyTimes << " " << Nx[s] << "x" << Ny[s]
       <<  " images: " << elapsed << std::endl;
     */
+
     begin = clock();
     for (int i = 0; i < manyTimes; i++){
       GPU_convolution_naive(image, result, Nx[s], Ny[s], gaussian);

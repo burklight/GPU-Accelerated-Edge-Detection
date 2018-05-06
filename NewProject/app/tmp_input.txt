@@ -1,0 +1,1 @@
+Which is the path of the image you want to detect the edges of? 

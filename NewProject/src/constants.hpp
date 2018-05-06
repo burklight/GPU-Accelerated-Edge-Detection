@@ -10,7 +10,7 @@
 #define kerSizeLaplacian 3
 #define kerRadLaplacian 1
 #define threshold 5
-#define tilingFactor 10
+#define tilingFactor 21
 #define keplerSharedMemSize 49152
 #define maxwellSharedMemSize 65536
 #define pascalSharedMemSize 98304
