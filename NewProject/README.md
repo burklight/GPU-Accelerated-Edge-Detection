@@ -13,3 +13,6 @@ To use an application of the project you should type:
 
 To get the results of the application with the best parallelization method in figures you should type:
 - bash doAllImage.sh
+
+The report of the project can be found in:
+- [report](https://github.com/burklight/Parallels/blob/master/NewProject/sf2568-project-gpu.pdf)
