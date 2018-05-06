@@ -37,7 +37,6 @@ int main(){
     std::vector<short> image= loadImage(imgPath,Nx[s],Ny[s]);
     std::vector<short> result(Nx[s]*Ny[s]);
 
-    /*
     begin = clock();
     for (int i = 0; i < manyTimes; i++){
       CPU_convolution(image, result, Nx[s], Ny[s], gaussian);
@@ -46,7 +45,6 @@ int main(){
     elapsed = double(end - begin) / CLOCKS_PER_SEC;
     std::cout << "CPU:       \t 5x5 convolution on " << manyTimes << " " << Nx[s] << "x" << Ny[s]
       <<  " images: " << elapsed << std::endl;
-    */
 
     begin = clock();
     for (int i = 0; i < manyTimes; i++){
@@ -66,7 +64,6 @@ int main(){
     std::cout << "GPU Shared: \t 5x5 convolution on " << manyTimes << " " << Nx[s] << "x" << Ny[s]
       <<  " images: " << elapsed << std::endl;
 
-
     begin = clock();
     for (int i = 0; i < manyTimes; i++){
       GPU_convolution_const(image, result, Nx[s], Ny[s], gaussian);
@@ -75,7 +72,6 @@ int main(){
     elapsed = double(end - begin) / CLOCKS_PER_SEC;
     std::cout << "GPU Constant: \t 5x5 convolution on " << manyTimes << " " << Nx[s] << "x" << Ny[s]
       <<  " images: " << elapsed << std::endl;
-
 
     begin = clock();
     for (int i = 0; i < manyTimes; i++){
@@ -86,7 +82,6 @@ int main(){
     std::cout << "GPU Separable: \t 5x5 convolution on " << manyTimes << " " << Nx[s] << "x" << Ny[s]
       <<  " images: " << elapsed << std::endl;
 
-
     begin = clock();
     for (int i = 0; i < manyTimes; i++){
       GPU_convolution_tiling(image, result, Nx[s], Ny[s], gaussian);
@@ -96,7 +91,6 @@ int main(){
     std::cout << "GPU 1x"<< tilingFactor << " tiling:  5x5 convolution on " << manyTimes << " " << Nx[s] << "x" << Ny[s]
       <<  " images: " << elapsed << std::endl;
 
-    /*
     begin = clock();
     for (int i = 0; i < manyTimes; i++){
       CPU_convolution(image, result, Nx[s], Ny[s], laplacian);
@@ -105,7 +99,6 @@ int main(){
     elapsed = double(end - begin) / CLOCKS_PER_SEC;
     std::cout << "CPU:      \t 3x3 convolution on " << manyTimes << " " << Nx[s] << "x" << Ny[s]
       <<  " images: " << elapsed << std::endl;
-    */
 
     begin = clock();
     for (int i = 0; i < manyTimes; i++){

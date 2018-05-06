@@ -20,7 +20,7 @@ int main(){
 
   /* We write it in a file to later observe it is correct */
   FILE *fp;
-  fp = fopen("edge_detect.txt","wb");
+  fp = fopen("./edge_detect.txt","wb");
 
   for(int i = 0; i < Ny; ++i){
     for(int j = 0; j < Nx-1; ++j){

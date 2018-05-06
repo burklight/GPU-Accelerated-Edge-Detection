@@ -14,5 +14,5 @@ gray = gray.astype(int)
 np.savetxt(fname='tmp_img.txt', X = gray, delimiter=',', newline=',', fmt='%d')
 
 shape_file  = open("tmp_input.txt", "w")
-shape_file.write(str(gray.shape[0]) + " " + str(gray.shape[1])+ " " + img_path)
+shape_file.write(str(gray.shape[0]) + " " + str(gray.shape[1])+ " " + 'tmp_img.txt')
 shape_file.close()

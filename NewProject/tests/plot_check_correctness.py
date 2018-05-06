@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 fig, axes = plt.subplots(nrows=2,ncols=3,figsize=(20,20))
+fig.canvas.set_window_title("Convolution results for different optimization approaches (each new approche uses all techniques from the previous ones)")
 
 image_cpu = np.loadtxt('./tests/cpu_edge_detect.txt', delimiter=',', dtype = int)
 axes[0,0].imshow(image_cpu, cmap="gray")
