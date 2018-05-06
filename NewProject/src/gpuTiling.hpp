@@ -30,7 +30,7 @@ __global__ void CUDA_convolution_row_tile(short *image, short *result,
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = tilingFactor * blockIdx.x * blockSizeX + threadIdx.x;
 
-    if (threadIdx.x == 0 && threadIdx.y ==0) printf("Tiling factor for block (%d,%d) at pixel (%d,%d): %d\n",blockIdx.x,blockIdx.y,col,row,min(int(ceil((Nx-col)/((float)blockSizeX))),tilingFactor));
+    //check how many tiles fit on the current row
     int myTilingFactor = min(int(ceil((Nx-col)/((float)blockSizeX))),tilingFactor);
 
     //some data is shared between the threads in a block
@@ -45,12 +45,11 @@ __global__ void CUDA_convolution_row_tile(short *image, short *result,
 
     //each thread loads its own position
     for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
-        //if (tileIdx == tilingFactor-1 && blockIdx.y == 0) printf("Truthvalue1: %d\n",col+tileIdx*blockSizeX >= Nx || row >= Ny);
-        if (col+tileIdx*blockSizeX >= Nx || row >= Ny) {
-            data[idx+tileIdx*blockSizeX][idy] = 0;
-            //printf("Location1: %d\n",col+tileIdx*blockSizeX);
+        int offset = tileIdx*blockSizeX;
+        if (col+offset >= Nx || row >= Ny) {
+            data[idx+offset][idy] = 0;
         }
-        else data[idx+tileIdx*blockSizeX][idy] = image[col+tileIdx*blockSizeX+Nx*row];
+        else data[idx+offset][idy] = image[col+offset+Nx*row];
     }
 
     //load left apron
@@ -60,10 +59,8 @@ __global__ void CUDA_convolution_row_tile(short *image, short *result,
     }
 
     //load right apron
-    //TODO: FIX THIS SO IT INCORPORATES tileIdx
     int tilingOffset = (myTilingFactor-1)*blockSizeX;
     if (thx+tilingOffset+kerRad >= myTilingFactor*blockSizeX){
-        //if (tileIdx == myTilingFactor-1 && blockIdx.y == 0) printf("Truthvalue1: %d",col+tilingOffset+kerRad >= Nx || row >= Ny);
       if (col+tilingOffset+kerRad >= Nx || row >= Ny) {
           data[idx+tilingOffset+kerRad][idy] = 0;
       }
@@ -79,18 +76,18 @@ __global__ void CUDA_convolution_row_tile(short *image, short *result,
     //for each filter weight
     for (int x = -kerRad; x <= kerRad; ++x){
         for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
-            if ((idx+tileIdx*blockSizeX+x < 0) || (idx+tileIdx*blockSizeX+x >= myTilingFactor*blockSizeX+kerSizeGauss-1)/* || col+tileIdx*blockSizeX+x >=Nx*/ ) {
-                //if (col+x+tileIdx*blockSizeX >= Nx) printf("Location3: %d > %d is %d\n",col+x+tileIdx*blockSizeX, Nx, col+x+tileIdx*blockSizeX > Nx);
+            int offset = tileIdx*blockSizeX;
+            if ((idx+offset+x < 0) || (idx+offset+x >= myTilingFactor*blockSizeX+kerSizeGauss-1)) {
                 continue;
             }
-            tmp[tileIdx] += (gaussianKernelLin[x+kerRad] * data[idx+tileIdx*blockSizeX+x][idy]);
-            ///*if (col + tileIdx*blockSizeX > 700)*/ printf("tmp content at %d: %f",col + tileIdx*blockSizeX,tmp[tileIdx]);
+            tmp[tileIdx] += (gaussianKernelLin[x+kerRad] * data[idx+offset+x][idy]);
         }
     }
 
     //store result to global memory
     for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
-        result[col+tileIdx*blockSizeX + Nx*row] = int(round(tmp[tileIdx]));
+        int offset = tileIdx*blockSizeX;
+        result[(col+offset) + Nx*row] = int(round(tmp[tileIdx]));
     }
 }
 
@@ -104,6 +101,7 @@ __global__ void CUDA_convolution_col_tile(short *image, short *result,
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = tilingFactor * blockIdx.x * blockSizeX + threadIdx.x;
 
+    //check how many tiles fit on the current row
     int myTilingFactor = min(int(ceil((Nx-col)/((float)blockSizeX))),tilingFactor);
 
     //some data is shared between the threads in a block
@@ -118,31 +116,30 @@ __global__ void CUDA_convolution_col_tile(short *image, short *result,
 
     //each thread loads its own position
     for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
-        //if (tileIdx == myTilingFactor-1 && blockIdx.y == 0) printf("Truthvalue1: %d\n",col+tileIdx*blockSizeX >= Nx);
-
-        if (col+tileIdx*blockSizeX >= Nx) data[idx+tileIdx*blockSizeX][idy] = 0;
-        else data[idx+tileIdx*blockSizeX][idy] = image[col+tileIdx*blockSizeX+Nx*row];
+        int offset = tileIdx*blockSizeX;
+        if (col+offset >= Nx) data[idx+offset][idy] = 0;
+        else data[idx+offset][idy] = image[col+offset+Nx*row];
     }
 
     //load top apron
     if (thy-kerRad < 0){
         for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
-            if (row-kerRad < 0 || col+tileIdx*blockSizeX >= Nx) {
-                data[idx+tileIdx*blockSizeX][idy-kerRad] = 0;
-                //if (col+tileIdx*blockSizeX >= Nx) printf("Location4: %d\n",col+tileIdx*blockSizeX);
+            int offset = tileIdx*blockSizeX;
+            if (row-kerRad < 0 || col+offset >= Nx) {
+                data[idx+offset][idy-kerRad] = 0;
             }
-            else data[idx+tileIdx*blockSizeX][idy-kerRad] = image[col+tileIdx*blockSizeX+Nx*(row-kerRad)];
+            else data[idx+offset][idy-kerRad] = image[col+offset+Nx*(row-kerRad)];
         }
     }
 
     //load bottom apron
     if (thy+kerRad >= blockDim.y){
         for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
-            if (row+kerRad >= Ny || col+tileIdx*blockSizeX >= Nx) {
-                //if (col+tileIdx*blockSizeX >= Nx) printf("Location5: %d\n",col+tileIdx*blockSizeX);
-                data[idx+tileIdx*blockSizeX][idy+kerRad] = 0;
+            int offset = tileIdx*blockSizeX;
+            if (row+kerRad >= Ny || col+offset >= Nx) {
+                data[idx+offset][idy+kerRad] = 0;
             }
-            else data[idx+tileIdx*blockSizeX][idy+kerRad] = image[col+tileIdx*blockSizeX+Nx*(row+kerRad)];
+            else data[idx+offset][idy+kerRad] = image[col+offset+Nx*(row+kerRad)];
         }
     }
 
@@ -155,8 +152,9 @@ __global__ void CUDA_convolution_col_tile(short *image, short *result,
     //for each filter weight
     for (int y = -kerRad; y <= kerRad; ++y){
         for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
+            int offset = tileIdx*blockSizeX;
             if ((row+y < 0) || (row+y >= Ny)) continue;
-            tmp[tileIdx] += (gaussianKernelLin[y+kerRad] * data[idx+tileIdx*blockSizeX][idy+y]);
+            tmp[tileIdx] += (gaussianKernelLin[y+kerRad] * data[idx+offset][idy+y]);
         }
     }
 
@@ -177,6 +175,7 @@ __global__ void CUDA_convolution_tiling_laplacian(short *image, short *result,
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = tilingFactor * blockIdx.x * blockSizeX + threadIdx.x;
 
+    //check how many tiles fit on the current row
     int myTilingFactor = min(int(ceil((Nx-col)/((float)blockSizeX))),tilingFactor);
 
     //some data is shared between the threads in a block
@@ -207,7 +206,6 @@ __global__ void CUDA_convolution_tiling_laplacian(short *image, short *result,
     if (thx+tilingOffset+kerRad >= myTilingFactor*blockSizeX){
       if (col+tilingOffset+kerRad >= Nx) {
           data[idx+tilingOffset+kerRad][idy] = 0;
-          //printf("Location6: %d\n",col+tilingOffset+kerRad);
       }
       else data[idx+tilingOffset+kerRad][idy] = image[(col+tilingOffset+kerRad)+Nx*row];
     }
@@ -218,7 +216,6 @@ __global__ void CUDA_convolution_tiling_laplacian(short *image, short *result,
         int offset = tileIdx*blockSizeX;
         if (row-kerRad < 0 || col+offset >= Nx) {
           data[idx+offset][idy-kerRad] = 0;
-          //if (col+offset >= Nx) printf("Location7: %d\n",col+offset);
         }
         else data[idx+offset][idy-kerRad] = image[col+offset+Nx*(row-kerRad)];
       }
@@ -230,7 +227,6 @@ __global__ void CUDA_convolution_tiling_laplacian(short *image, short *result,
         int offset = tileIdx*blockSizeX;
         if (col+kerRad >= Ny || col+offset >= Nx) {
           data[idx+offset][idy+kerRad] = 0;
-          //if (col+offset >= Nx) printf("Location8: %d\n",col+offset);
         }
         else data[idx+offset][idy+kerRad] = image[col+offset+Nx*(row+kerRad)];
       }
@@ -246,7 +242,6 @@ __global__ void CUDA_convolution_tiling_laplacian(short *image, short *result,
     if ((thx+tilingOffset+kerRad >= myTilingFactor*blockSizeX) && (thy-kerRad < 0)){
       if ((col+tilingOffset+kerRad >= Nx) || (row-kerRad < 0)) {
           data[idx+tilingOffset+kerRad][idy-kerRad] = 0;
-          //if (col+tilingOffset+kerRad >= Nx) printf("Location9: %d\n",col+tilingOffset+kerRad);
       }
       else data[idx+tilingOffset+kerRad][idy-kerRad] = image[(col+tilingOffset+kerRad)+Nx*(row-kerRad)];
     }
@@ -261,14 +256,13 @@ __global__ void CUDA_convolution_tiling_laplacian(short *image, short *result,
     if ((thx+tilingOffset+kerRad  >= myTilingFactor*blockSizeX) && (thy+kerRad >= blockDim.y)){
       if ((col+tilingOffset+kerRad >= Nx) || (row+kerRad >= Ny)) {
           data[idx+tilingOffset+kerRad][idy+kerRad] = 0;
-          //if (col+tilingOffset+kerRad >= Nx) printf("Location10: %d\n",col+tilingOffset+kerRad);
       }
       else data[idx+tilingOffset+kerRad][idy+kerRad] = image[(col+tilingOffset+kerRad)+Nx*(row+kerRad)];
     }
 
     //make sure that all the data is available for all the threads
     __syncthreads();
-    //printf("4\n");
+
     //thread-local register to hold local sum
     float tmp[tilingFactor] = {0.0};
 
@@ -279,13 +273,11 @@ __global__ void CUDA_convolution_tiling_laplacian(short *image, short *result,
         for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
           int offset = tileIdx*blockSizeX;
           if ((col+x+offset < 0) || (row+y < 0) || (col+x+offset >= Nx) || (row+y >= Ny)) {
-              //if (col+x+tileLoc >= Nx) printf("Location11: %d\n",col+x+tileLoc);
               continue;
           }
           tmp[tileIdx] +=
             (laplacianKernel[x+kerRad + M*(y+kerRad)] * data[idx+x+offset][idy+y]);
         }
-
       }
     }
 
@@ -293,7 +285,6 @@ __global__ void CUDA_convolution_tiling_laplacian(short *image, short *result,
     for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
       int offset = tileIdx*blockSizeX;
       if (col+offset >= Nx) {
-          //printf("Location12: %d\n",col+tileLoc);
           break;
       }
       result[(col+offset) + Nx*row] = tmp[tileIdx];
@@ -314,26 +305,6 @@ static void GPU_convolution_tiling(std::vector<short> image, std::vector<short> 
       sizeFilt *= kerSizeLaplacian*kerSizeLaplacian;
       break;
   }
-  /*
-  int blocksPerSM = 2;
-
-  int numShorts = keplerSharedMemSize / (sizeof(short) * blocksPerSM);
-
-  int gausApronSizes = 2*kerRadGauss*(blockSizeY+2*kerRadGauss);
-  int lapApronSizes = 2*kerRadLaplacian*(blockSizeY+2*kerRadLaplacian);
-
-  int numGausShorts = numShorts - gausApronSizes;
-  int numLapShorts = numShorts - lapApronSizes;
-
-  int gausTileSize = blockSizeX*(blockSizeY+2*kerRadGauss);
-  int lapTileSize = blockSizeX*(blockSizeY+2*kerRadLaplacian);
-
-  int gausTileFact = numGausShorts/gausTileSize;
-  int lapTileFact = numLapShorts/lapTileSize;
-
-  printf("Best laplacian tiling factor: %d\n",lapTileFact);
-  printf("Best gaussian tiling factor: %d\n",gausTileFact);
-  */
 
   // Create the device copies for the GPU and copy them to the device
   int sizeImg = Nx*Ny * sizeof(short);
@@ -347,7 +318,6 @@ static void GPU_convolution_tiling(std::vector<short> image, std::vector<short> 
 
   cudaMemcpy(d_img, &image[0], sizeImg, cudaMemcpyHostToDevice);
   dim3 threads(blockSizeX, blockSizeY);
-  printf("Num blocks per row of tiles: %d\n", int(ceil(Nx/((float)(blockSizeX*tilingFactor)))));
   dim3 blocks(int(ceil(Nx/((float)(blockSizeX*tilingFactor)))), int(ceilf(Ny/(float)blockSizeY)));
 
   switch (filterChoice) {
