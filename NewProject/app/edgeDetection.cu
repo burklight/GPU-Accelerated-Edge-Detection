@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include "../src/loadImage.hpp"
 #include "../src/gpuFuncs.hpp"
 #include "../src/cpuFuncs.hpp"
@@ -8,12 +9,14 @@ int main(){
 
   /* We get one of the larger images */
   int Nx, Ny;
+  std::string filename;
   std::cin >> Nx >> Ny;
-  std::vector<short> ourImage = loadImage("tmp_img.txt",Nx,Ny);
+  std::cin >> filename;
+  std::vector<short> ourImage = loadImage(filename,Nx,Ny);
   std::vector<short> result(Nx*Ny);
 
   /* We apply the edge detection algorithm */
-  CPU_edgeDetection(ourImage, result, Nx, Ny);
+  GPU_edgeDetection(ourImage, result, Nx, Ny, TILING);
 
   /* We write it in a file to later observe it is correct */
   FILE *fp;
