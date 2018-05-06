@@ -8,7 +8,7 @@ int main(){
 
   /* We get one of the larger images */
   int Nx = 2048, Ny = 2048;
-  std::vector<short> ourImage = loadImage("../data/2048/img1.txt",Nx,Ny);
+  std::vector<short> ourImage = loadImage("./data/2048/img1.txt",Nx,Ny);
   std::vector<short> resultCPU(Nx*Ny);
   std::vector<short> resultGPU_naive(Nx*Ny);
   std::vector<short> resultGPU_shared(Nx*Ny);
@@ -27,12 +27,12 @@ int main(){
 
   /* We write it in a file to later observe it is correct */
   FILE *fp_cpu, *fp_gpu_naive, *fp_gpu_shared, *fp_gpu_const, *fp_gpu_sep, *fp_gpu_tiling;
-  fp_cpu = fopen("cpu_edge_detect.txt","wb");
-  fp_gpu_naive = fopen("gpu_naive_edge_detect.txt","wb");
-  fp_gpu_shared = fopen("gpu_shared_edge_detect.txt","wb");
-  fp_gpu_const = fopen("gpu_const_edge_detect.txt","wb");
-  fp_gpu_sep = fopen("gpu_sep_edge_detect.txt","wb");
-  fp_gpu_tiling = fopen("gpu_tiling_edge_detect.txt","wb");
+  fp_cpu = fopen("./tests/cpu_edge_detect.txt","wb");
+  fp_gpu_naive = fopen("./tests/gpu_naive_edge_detect.txt","wb");
+  fp_gpu_shared = fopen("./tests/gpu_shared_edge_detect.txt","wb");
+  fp_gpu_const = fopen("./tests/gpu_const_edge_detect.txt","wb");
+  fp_gpu_sep = fopen("./tests/gpu_sep_edge_detect.txt","wb");
+  fp_gpu_tiling = fopen("./tests/gpu_tiling_edge_detect.txt","wb");
   for(int i = 0; i < Ny; ++i){
     for(int j = 0; j < Nx-1; ++j){
       fprintf(fp_cpu, "%d,", resultCPU[j + Nx*i]);

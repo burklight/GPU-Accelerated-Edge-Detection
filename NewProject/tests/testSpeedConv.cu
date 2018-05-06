@@ -15,8 +15,8 @@ int main(){
 
   // We check the speed of the convolution for different image sizes (for theoretical reasons)
   FILE *fp_img_size_CPU, *fp_img_size_GPU;
-  //fp_img_size_CPU = fopen("speed_conv_img_size_CPU.txt","wb");
-  fp_img_size_GPU = fopen("speed_conv_img_size_GPU.txt","wb");
+  //fp_img_size_CPU = fopen("./tests/speed_conv_img_size_CPU.txt","wb");
+  fp_img_size_GPU = fopen("./tests/speed_conv_img_size_GPU.txt","wb");
   for (int i = 256; i <= 4096; i*=2){
     // We generate a squared image with sizes ranging from 256 to 4096
     std::vector<short> tmpImage(i*i);

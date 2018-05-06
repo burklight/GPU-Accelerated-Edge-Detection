@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 
 save = False if input("Save figures? ").lower() == 'no' else True
 
-timesG = np.loadtxt("speed_conv_img_size_GPU.txt", delimiter=",")
+timesG = np.loadtxt("./tests/speed_conv_img_size_GPU.txt", delimiter=",")
 timesG = timesG.T
-timesC = np.loadtxt("speed_conv_img_size_CPU.txt", delimiter=",")
+timesC = np.loadtxt("./tests/speed_conv_img_size_CPU.txt", delimiter=",")
 timesC = timesC.T
 
 speedup3_naive = (timesC[0] / timesG[0])
@@ -34,7 +34,7 @@ ax.set_xlabel('Nx, Ny')
 ax.set_ylabel('Speed-Up')
 ax.set_title('5x5 convolution', fontsize=15)
 if save == True:
-    plt.savefig('../figures/experimental_su_5.png', format='png')
+    plt.savefig('./figures/experimental_su_5.png', format='png')
 plt.show()
 
 speedup5_naive = (timesC[1] / timesG[5])
@@ -60,7 +60,7 @@ ax.set_xlabel('Nx, Ny')
 ax.set_ylabel('Speed-Up')
 ax.set_title('3x3 convolution', fontsize=15)
 if save == True:
-    plt.savefig('../figures/experimental_su_3.png', format='png')
+    plt.savefig('./figures/experimental_su_3.png', format='png')
 plt.show()
 
 vals = ['256','512','1024','2048','4096']
@@ -78,7 +78,7 @@ ax.set_xlabel('Nx, Ny')
 ax.set_ylabel('Time for 100 image filtering')
 ax.set_title('5x5 convolution', fontsize=15)
 if save == True:
-    plt.savefig('../figures/experimental_rt_5.png', format='png')
+    plt.savefig('./figures/experimental_rt_5.png', format='png')
 plt.show()
 
 vals = ['256','512','1024','2048','4096']
@@ -95,5 +95,5 @@ ax.set_xlabel('Nx, Ny')
 ax.set_ylabel('Time for 100 image filtering')
 ax.set_title('3x3 convolution', fontsize=15)
 if save == True:
-    plt.savefig('../figures/experimental_rt_3.png', format='png')
+    plt.savefig('./figures/experimental_rt_3.png', format='png')
 plt.show()
