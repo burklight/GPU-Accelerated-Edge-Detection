@@ -46,5 +46,5 @@ python3 ./tests/plot_theoretical_ai.py
 python3 ./tests/plot_test_speed_conv.py
 
 # Cleanup
-rm ./tests/*.txt
-rm ./*.txt
+rm -f ./tests/*.txt
+rm -f ./*.txt

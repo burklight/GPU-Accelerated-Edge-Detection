@@ -78,7 +78,7 @@ int main(){
     }
     end = clock();
     elapsed = double(end - begin) / CLOCKS_PER_SEC;
-      fprintf(fp_img_size_CPU, "%.5f,", elapsed);
+      fprintf(fp_img_size_CPU, "%.5f\n", elapsed);
 
     begin = clock();
     for (int j = 0; j < manyTimes; j++){

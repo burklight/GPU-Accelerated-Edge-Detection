@@ -10,4 +10,4 @@ fi
 python3 ./app/getImage.py
 ./app/edgeDetection < tmp_input.txt
 python3 ./app/saveImage.py
-rm -r ./tmp_img.txt ./edge_detect.txt ./tmp_input.txt
+rm -rf ./tmp_img.txt ./edge_detect.txt ./tmp_input.txt
