@@ -22,6 +22,17 @@ else
    echo "File testSpeedConv exists."
 fi
 
+if [ ! -d ./figures ]; then
+  echo "Directory figures does not exist, creating it..."
+  mkdir ./figures
+  mkdir ./figures/resulting_images
+  mkdir ./figures/resulting_images/512
+  mkdir ./figures/resulting_images/1024
+  mkdir ./figures/resulting_images/2048
+else
+  echo "Directory figures exists."
+fi
+
 # Run the tests
 echo "Checking speed of convolutions..."
 ./tests/checkSpeed

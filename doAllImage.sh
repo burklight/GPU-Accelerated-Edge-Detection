@@ -7,6 +7,24 @@ else
    echo "File edgeDetection exists."
 fi
 
+if [ ! -d ./figures ]; then
+  echo "Directory figures does not exist, creating it..."
+  mkdir ./figures
+  mkdir ./figures/resulting_images
+  mkdir ./figures/resulting_images/512
+  mkdir ./figures/resulting_images/1024
+  mkdir ./figures/resulting_images/2048
+else
+  echo "Directory figures exists."
+  if [ ! -d ./figures/resulting_images ]; then
+    echo "Directory figures/resulting_images does not exist, creating it..."
+    mkdir ./figures/resulting_images
+    mkdir ./figures/resulting_images/512
+    mkdir ./figures/resulting_images/1024
+    mkdir ./figures/resulting_images/2048
+  fi
+fi
+
 tmp="0"
 for filename in ./data/512/*.txt
 do
