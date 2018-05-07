@@ -105,7 +105,7 @@ __global__ void CUDA_convolution_col_tile(short *image, short *result,
     int myTilingFactor = min(int(ceil((Nx-col)/((float)blockSizeX))),tilingFactor);
 
     //some data is shared between the threads in a block
-    __shared__ short data[tilingFactor*blockSizeX][blockSizeY+kerSizeGauss-1];
+    __shared__ short data[blockSizeY+kerSizeGauss-1][tilingFactor*blockSizeX]; // NOTE data is transposed
 
     //position of the thread (Y-axis) in the shared data
     int idx = threadIdx.x;
@@ -118,7 +118,7 @@ __global__ void CUDA_convolution_col_tile(short *image, short *result,
     for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
         int offset = tileIdx*blockSizeX;
         if (col+offset >= Nx) data[idx+offset][idy] = 0;
-        else data[idx+offset][idy] = image[col+offset+Nx*row];
+        else data[idy][idx+offset] = image[col+offset+Nx*row];
     }
 
     //load top apron
@@ -126,9 +126,9 @@ __global__ void CUDA_convolution_col_tile(short *image, short *result,
         for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
             int offset = tileIdx*blockSizeX;
             if (row-kerRad < 0 || col+offset >= Nx) {
-                data[idx+offset][idy-kerRad] = 0;
+                data[idy-kerRad][idx+offset] = 0;
             }
-            else data[idx+offset][idy-kerRad] = image[col+offset+Nx*(row-kerRad)];
+            else data[idy-kerRad][idx+offset] = image[col+offset+Nx*(row-kerRad)];
         }
     }
 
@@ -137,9 +137,9 @@ __global__ void CUDA_convolution_col_tile(short *image, short *result,
         for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
             int offset = tileIdx*blockSizeX;
             if (row+kerRad >= Ny || col+offset >= Nx) {
-                data[idx+offset][idy+kerRad] = 0;
+                data[idy+kerRad][idx+offset] = 0;
             }
-            else data[idx+offset][idy+kerRad] = image[col+offset+Nx*(row+kerRad)];
+            else data[idy+kerRad][idx+offset] = image[col+offset+Nx*(row+kerRad)];
         }
     }
 
@@ -154,7 +154,7 @@ __global__ void CUDA_convolution_col_tile(short *image, short *result,
         for (int tileIdx = 0; tileIdx < myTilingFactor; ++tileIdx) {
             int offset = tileIdx*blockSizeX;
             if ((row+y < 0) || (row+y >= Ny)) continue;
-            tmp[tileIdx] += (gaussianKernelLin[y+kerRad] * data[idx+offset][idy+y]);
+            tmp[tileIdx] += (gaussianKernelLin[y+kerRad] * data[idy+y][idx+offset]);
         }
     }
 
