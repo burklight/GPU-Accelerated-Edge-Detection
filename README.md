@@ -7,7 +7,7 @@ For this project you need the following dependencies:
 
 To see the test we performed for the project you should type:
 - ```$ bash run_tests.sh```
-- if you are interested in the raw data used for the plots in testSpeedConv.cu, please comment the lines 49 and 50 of run_tests.sh. They will be stored in ./tests/speed_conv_img_size_CPU.txt and ./tests/speed_conv_img_size_GPU.txt. After inspecting them run ```console $ bash clean.sh``` to remove unnecessary files.
+- if you are interested in the raw data used for the plots in testSpeedConv.cu, please comment the lines 49 and 50 of run_tests.sh. They will be stored in ./tests/speed_conv_img_size_CPU.txt and ./tests/speed_conv_img_size_GPU.txt. After inspecting them run ```$ bash clean.sh``` to remove unnecessary files.
 
 To use an application of the project you should type. You can the 1.jpg image as an example:
 - ```$ bash app.sh path_to_a_square_image```
