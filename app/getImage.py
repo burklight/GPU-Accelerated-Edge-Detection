@@ -8,7 +8,9 @@ def rgb2gray(rgb):
 img_path = input('Which is the path of the image you want to detect the edges of? ')
 
 img = mpimg.imread(img_path)
-gray = 255*rgb2gray(img)
+gray = rgb2gray(img)
+if np.max(gray) <= 1.0:
+    gray = 255 * gray
 gray = gray.astype(int)
 
 np.savetxt(fname='tmp_img.txt', X = gray, delimiter=',', newline=',', fmt='%d')
